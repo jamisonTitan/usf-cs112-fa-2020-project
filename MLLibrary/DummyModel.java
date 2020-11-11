@@ -75,6 +75,6 @@ public class DummyModel extends Model {
     }
 
     public ArrayList<DataPoint> getGeneratedData() {
-        return this.getGeneratedData();
+        return this.generatedData;
     }
 }
