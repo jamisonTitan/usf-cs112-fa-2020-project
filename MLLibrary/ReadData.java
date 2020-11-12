@@ -6,17 +6,12 @@ import java.util.*;
 public class ReadData {
     private List<String> getRecordFromLine(String line) {
         List<String> values = new ArrayList<String>();
-        try {
-            Scanner rowScanner = new Scanner(line);
-            rowScanner.useDelimiter(",");
-            while (rowScanner.hasNext()) {
-                values.add(rowScanner.next());
-            }
-            rowScanner.close();
-        } catch (Exception e) {
-            throw (e);
-            // TODO do something with the exception
+        Scanner rowScanner = new Scanner(line);
+        rowScanner.useDelimiter(",");
+        while (rowScanner.hasNext()) {
+            values.add(rowScanner.next());
         }
+        rowScanner.close();
         return values;
     }
 
@@ -26,27 +21,24 @@ public class ReadData {
         try {
             Scanner fileScanner = new Scanner(new File(fileName));
             int typeDeterminer;
-            while (fileScanner.hasNext()) {
+            while (fileScanner.hasNextLine()) {
                 List<String> record = getRecordFromLine(fileScanner.nextLine());
-                if (!record.get(5).isEmpty() && !record.get(6).isEmpty()) {
+                if (!record.get(5).isEmpty() && !record.get(6).isEmpty()) { // check if row has age and fare
                     typeDeterminer = (int) (Math.random() * 100);
                     String type = "UNASSIGNED";
-                    if (typeDeterminer >= 90)
+                    if (typeDeterminer < 90) {
                         type = "TRAIN";
-                    else
+                    } else {
                         type = "TEST";
-                    try {
-                        DataPoint point = new DataPoint(Double.parseDouble(record.get(5)),
-                                Double.parseDouble(record.get(6)), record.get(1), type);
-                        this.data.add(point);
-                    } catch (IndexOutOfBoundsException e) {
-                        System.out.println("ioutobounds");
                     }
+                    DataPoint point = new DataPoint(Double.parseDouble(record.get(5)),
+                            Double.parseDouble(record.get(6)), record.get(1), type);
+                    this.data.add(point);
                 }
             }
             fileScanner.close();
-        } catch (Exception e) {
-            // System.out.println(e);
+        } catch (Exception fileNotFoundException) {
+            System.out.println("File does not exist or wrong file name");
         }
     }
 

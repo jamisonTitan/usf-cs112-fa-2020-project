@@ -45,7 +45,7 @@ public class KNNModel extends Model {
             for (int i = 0; i < k; i++) {
                 if (res[i][1] == 0) {
                     deceased += 1;
-                } else {
+                } else if (res[i][1] == 1) {
                     survived += 1;
                 }
             }
@@ -54,24 +54,22 @@ public class KNNModel extends Model {
             else if (deceased < survived)
                 modeOfLabels = "1";
             else
-                modeOfLabels = "0"; // deceased == survived (°-°;)???
+                System.out.println("K must be and odd number!!");
             return modeOfLabels;
         } else
             return null;
     }
 
-    Double getAccuracy(ArrayList<DataPoint> data) {
-        String testRes = null;
+    Integer[] accuracyAndPrecisionMetrics(ArrayList<DataPoint> data) {
         int truePositive = 0, falsePositive = 0, trueNegative = 0, falseNegative = 0;
+        String testRes = null;
         for (DataPoint p : data) {
             if (p.getType() == "TEST") {
                 ArrayList<DataPoint> dataToTest = new ArrayList<DataPoint>();
                 dataToTest.add(p);
                 if (test(dataToTest) != null)
                     testRes = test(dataToTest);
-                boolean isTestEqualToReal = false;
-                isTestEqualToReal = testRes.equals(p.getLabel());
-                if (isTestEqualToReal) {
+                if (testRes.equals(p.getLabel())) {
                     switch (p.getLabel()) {
                         case "0":
                             trueNegative += 1;
@@ -94,46 +92,20 @@ public class KNNModel extends Model {
 
             }
         }
+        Integer[] res = new Integer[] { truePositive, falsePositive, trueNegative, falseNegative };
+        return res;
+    }
 
+    Double getAccuracy(ArrayList<DataPoint> data) {
+        Integer[] metrics = accuracyAndPrecisionMetrics(data);
+        int truePositive = metrics[0], falsePositive = metrics[1], trueNegative = metrics[2],
+                falseNegative = metrics[3];
         return (double) (truePositive + trueNegative) / (truePositive + trueNegative + falsePositive + falseNegative);
     }
 
     Double getPrecision(ArrayList<DataPoint> data) {
-        // TODO copy + pasted code!! bad bad
-        String testRes = null;
-        int truePositive = 0, falsePositive = 0, trueNegative = 0, falseNegative = 0;
-        for (DataPoint p : data) {
-            if (p.getType() == "TEST") {
-                ArrayList<DataPoint> dataToTest = new ArrayList<DataPoint>();
-                dataToTest.add(p);
-                if (test(dataToTest) != null)
-                    testRes = test(dataToTest);
-                boolean isTestEqualToReal = false;
-                isTestEqualToReal = testRes.equals(p.getLabel());
-                if (isTestEqualToReal) {
-                    switch (p.getLabel()) {
-                        case "0":
-                            trueNegative += 1;
-                            break;
-                        case "1":
-                            truePositive += 1;
-                            break;
-                    }
-                } else {
-                    switch (p.getLabel()) {
-                        case "0":
-                            falseNegative += 1;
-                            break;
-                        case "1":
-                            falsePositive += 1;
-                            break;
-                    }
-                }
-            } else {
-
-            }
-        }
-
+        Integer[] metrics = accuracyAndPrecisionMetrics(data);
+        int truePositive = metrics[0], falseNegative = metrics[3];
         return (double) truePositive / (truePositive + falseNegative);
     }
 }
