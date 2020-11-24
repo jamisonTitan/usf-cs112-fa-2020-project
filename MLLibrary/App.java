@@ -7,19 +7,19 @@ import java.awt.*;
 public class App {
     private static String accuracy, precision;
 
-    public static void main(String args[]) {
-        ArrayList<DataPoint> data = new ReadData("titanic.csv").getData();
-        KNNModel model = new KNNModel(111);
-        model.train(data);
-        accuracy = Double.toString(model.getAccuracy(data));
-        precision = Double.toString(model.getPrecision(data));
-        System.out.println("Acc " + accuracy + " Prec " + precision);
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                render();
-            }
-        });
-    }
+    // public static void main(String args[]) {
+    // ArrayList<DataPoint> data = new ReadData("titanic.csv").getData();
+    // KNNModel model = new KNNModel(111);
+    // model.train(data);
+    // accuracy = Double.toString(model.getAccuracy(data));
+    // precision = Double.toString(model.getPrecision(data));
+    // System.out.println("Acc " + accuracy + " Prec " + precision);
+    // SwingUtilities.invokeLater(new Runnable() {
+    // public void run() {
+    // render();
+    // }
+    // });
+    // }
 
     private static void render() {
         JFrame frame = new JFrame();

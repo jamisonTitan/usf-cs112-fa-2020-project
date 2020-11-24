@@ -32,7 +32,7 @@ public class KNNModel extends Model {
         this.trainingSet = trainingData;
     }
 
-    String test(ArrayList<DataPoint> data) {
+    public String test(ArrayList<DataPoint> data) {
         double[][] res = new double[this.trainingSet.size()][2];
         if (data.get(0).getType() == "TEST") {
             for (int i = 0; i < this.trainingSet.size(); i++) {
