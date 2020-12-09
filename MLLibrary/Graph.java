@@ -1,7 +1,12 @@
 package MLLibrary;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -12,6 +17,10 @@ public class Graph extends JPanel {
     private static final long serialVersionUID = 1L;
     private int labelPadding = 40;
     private Color lineColor = new Color(255, 255, 254);
+    static final int MIN = 0;
+    static final int MAX = 30;
+    static final int INIT = 15;
+    static String accuracy, precision;
 
     // TODO: Add point colors for each type of data point
     private Color yellow = new Color(255, 255, 0);
@@ -31,10 +40,8 @@ public class Graph extends JPanel {
     private int padding = 40;
 
     // TODO: Add a private KNNModel variable
-    ArrayList<DataPoint> data = new ReadData("titanic.csv").getData();
-    private KNNModel model = null;
-    private static String accuracy;
-    private static String precision;
+    static ArrayList<DataPoint> data = new ReadData("titanic.csv").getData();
+    private static KNNModel model = null;
 
     private static ArrayList<DataPoint> loadTestData() {
         ArrayList<DataPoint> data = new ReadData("titanic.csv").getData();
@@ -60,8 +67,8 @@ public class Graph extends JPanel {
     public Graph(ArrayList<DataPoint> testData, ArrayList<DataPoint> trainData) {
         model = new KNNModel(101);
         model.train(trainData);
-        this.accuracy = Double.toString(model.getAccuracy(data));
-        this.precision = Double.toString(model.getPrecision(data));
+        accuracy = Double.toString(model.getAccuracy(data));
+        precision = Double.toString(model.getPrecision(data));
     }
 
     @Override
@@ -171,6 +178,7 @@ public class Graph extends JPanel {
                         case "1":
                             // false pos; color cyan
                             g2.setColor(cyan);
+
                             break;
                     }
                 }
@@ -241,9 +249,51 @@ public class Graph extends JPanel {
         JFrame frame = new JFrame("CS 112 Lab Part 3");
         /* Main panel */
         Graph mainPanel = new Graph(testData, trainData);
+        JButton runButton = new JButton("Run Test");
 
-        String data = "Accuracy " + accuracy + "<br> Precision" + precision;
-        JLabel textLabel = new JLabel("<html>DATA<br> <hr>" + data);
+        final int MIN = 2;
+        final int MAX = 25;
+        final int INIT = 5;
+        // Create the slider.
+        JSlider slider = new JSlider(JSlider.HORIZONTAL, MIN, MAX, INIT);
+        JLabel outputLabel = new JLabel();
+        JLabel sliderLabel = new JLabel("Random Slider", JLabel.CENTER);
+        String accAndPrec = "Accuracy " + accuracy + "<br> Precision" + precision;
+        final JLabel textLabel = new JLabel("<html>DATA<br> <hr>" + accAndPrec);
+        sliderLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        slider.setMajorTickSpacing(5);
+        slider.setMinorTickSpacing(1);
+        slider.setPaintTicks(true);
+        slider.setPaintLabels(true);
+        slider.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
+        Font font = new Font("Serif", Font.ITALIC, 15);
+        slider.setFont(font);
+        slider.setAlignmentX(Component.CENTER_ALIGNMENT);
+        slider.addChangeListener(new ChangeListener() {
+            @Override
+            /** Listen to the slider. */
+            public void stateChanged(ChangeEvent e) {
+                JSlider source = (JSlider) e.getSource();
+                int value = source.getValue();
+                outputLabel.setText("Value is: " + value);
+            }
+        });
+
+        runButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int value = (slider.getValue() * 2) + 1;
+                model = new KNNModel(value);
+                model.train(trainData);
+                accuracy = Double.toString(model.getAccuracy(data));
+                precision = Double.toString(model.getPrecision(data));
+                System.out.println(accuracy + " " + precision);
+                textLabel.setText("<html>DATA<br> <hr>" + "Accuracy " + accuracy + "<br> Precision" + precision);
+                frame.validate();
+                frame.repaint();
+            }
+        });
+
         Container contentPane = frame.getContentPane();
         contentPane.setLayout(new FlowLayout());
 
@@ -255,6 +305,10 @@ public class Graph extends JPanel {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.getContentPane().add(mainPanel);
         frame.getContentPane().add(textLabel);
+        frame.getContentPane().add(sliderLabel);
+        frame.getContentPane().add(slider);
+        frame.getContentPane().add(outputLabel);
+        frame.getContentPane().add(runButton);
         frame.pack();
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
